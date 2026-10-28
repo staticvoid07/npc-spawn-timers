@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.GraphicsObject;
 import net.runelite.api.NPC;
 import net.runelite.api.ObjectComposition;
 import net.runelite.api.TileObject;
@@ -20,6 +21,7 @@ import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.GraphicsObjectCreated;
 import net.runelite.api.events.GroundObjectDespawned;
 import net.runelite.api.events.GroundObjectSpawned;
 import net.runelite.api.events.NpcChanged;
@@ -39,8 +41,8 @@ import net.runelite.client.util.Text;
 @Slf4j
 @PluginDescriptor(
 	name = "NPC Spawn Timers",
-	description = "Shows how long ago NPCs and objects spawned, or counts down from a set time",
-	tags = {"npc", "object", "spawn", "respawn", "timer", "countdown", "ticks"}
+	description = "Shows how long ago NPCs, objects and graphics spawned, or counts down from a set time",
+	tags = {"npc", "object", "spawn", "respawn", "timer", "countdown", "ticks", "graphics"}
 )
 public class NpcSpawnTimersPlugin extends Plugin
 {
@@ -55,6 +57,9 @@ public class NpcSpawnTimersPlugin extends Plugin
 
 	@Getter(AccessLevel.PACKAGE)
 	private final Map<TileObject, TrackedObject> objects = new HashMap<>();
+
+	@Getter(AccessLevel.PACKAGE)
+	private final Map<GraphicsObject, TrackedSpawn> graphics = new HashMap<>();
 
 	@Getter(AccessLevel.PACKAGE)
 	private int tickCount;
@@ -74,6 +79,7 @@ public class NpcSpawnTimersPlugin extends Plugin
 		overlayManager.remove(overlay);
 		npcs.clear();
 		objects.clear();
+		graphics.clear();
 		groups = Collections.emptyList();
 	}
 
@@ -96,6 +102,7 @@ public class NpcSpawnTimersPlugin extends Plugin
 			groups = TimerGroup.fromConfig(config);
 			npcs.forEach((npc, spawn) -> spawn.setGroup(findNpcGroup(npc)));
 			objects.values().forEach(spawn -> spawn.setGroup(findObjectGroup(spawn)));
+			graphics.forEach((graphic, spawn) -> spawn.setGroup(findGraphicGroup(graphic.getId())));
 		});
 	}
 
@@ -107,11 +114,13 @@ public class NpcSpawnTimersPlugin extends Plugin
 		{
 			// objects are re-sent as spawns once the new scene has loaded
 			objects.clear();
+			graphics.clear();
 		}
 		else if (state == GameState.LOGIN_SCREEN || state == GameState.HOPPING)
 		{
 			npcs.clear();
 			objects.clear();
+			graphics.clear();
 		}
 	}
 
@@ -119,13 +128,15 @@ public class NpcSpawnTimersPlugin extends Plugin
 	public void onGameTick(GameTick event)
 	{
 		tickCount++;
+		// graphics objects have no despawn event, they are only flagged as finished
+		graphics.keySet().removeIf(GraphicsObject::finished);
 	}
 
 	@Subscribe
 	public void onNpcSpawned(NpcSpawned event)
 	{
 		NPC npc = event.getNpc();
-		TrackedSpawn spawn = new TrackedSpawn(tickCount, System.currentTimeMillis());
+		TrackedSpawn spawn = new TrackedSpawn(spawnTick(), System.currentTimeMillis());
 		spawn.setGroup(findNpcGroup(npc));
 		npcs.put(npc, spawn);
 	}
@@ -195,6 +206,20 @@ public class NpcSpawnTimersPlugin extends Plugin
 		objects.remove(event.getGroundObject());
 	}
 
+	@Subscribe
+	public void onGraphicsObjectCreated(GraphicsObjectCreated event)
+	{
+		GraphicsObject graphic = event.getGraphicsObject();
+		TimerGroup group = findGraphicGroup(graphic.getId());
+		if (group != null)
+		{
+			log.debug("Graphic {} created at {} on tick {}", graphic.getId(), graphic.getLocation(), spawnTick());
+			TrackedSpawn spawn = new TrackedSpawn(spawnTick(), System.currentTimeMillis());
+			spawn.setGroup(group);
+			graphics.put(graphic, spawn);
+		}
+	}
+
 	private void objectSpawned(TileObject object)
 	{
 		if (object == null || groups.isEmpty())
@@ -220,7 +245,7 @@ public class NpcSpawnTimersPlugin extends Plugin
 			}
 		}
 
-		TrackedObject spawn = new TrackedObject(tickCount, System.currentTimeMillis(),
+		TrackedObject spawn = new TrackedObject(spawnTick(), System.currentTimeMillis(),
 			object.getId(), cleanName(comp.getName()), impostorId, impostorName);
 		TimerGroup group = findObjectGroup(spawn);
 		if (group != null)
@@ -228,6 +253,14 @@ public class NpcSpawnTimersPlugin extends Plugin
 			spawn.setGroup(group);
 			objects.put(object, spawn);
 		}
+	}
+
+	/**
+	 * Spawns are received before the GameTick of the tick they belong to, so they count from the upcoming tick.
+	 */
+	private int spawnTick()
+	{
+		return tickCount + 1;
 	}
 
 	private TimerGroup findNpcGroup(NPC npc)
@@ -248,6 +281,18 @@ public class NpcSpawnTimersPlugin extends Plugin
 		for (TimerGroup group : groups)
 		{
 			if (spawn.matches(group))
+			{
+				return group;
+			}
+		}
+		return null;
+	}
+
+	private TimerGroup findGraphicGroup(int id)
+	{
+		for (TimerGroup group : groups)
+		{
+			if (group.matchesGraphic(id))
 			{
 				return group;
 			}

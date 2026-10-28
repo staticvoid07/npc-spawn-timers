@@ -70,13 +70,25 @@ public interface NpcSpawnTimersConfig extends Config
 		return CountdownExpiry.SHOW_ZERO;
 	}
 
+	@ConfigItem(
+		keyName = "timerPosition",
+		name = "Timer position",
+		description = "Draw timers above the NPC, object or graphic, or on the ground beneath it",
+		section = displaySection,
+		position = 4
+	)
+	default TimerPosition timerPosition()
+	{
+		return TimerPosition.ABOVE;
+	}
+
 	@Range(min = -500, max = 500)
 	@ConfigItem(
 		keyName = "npcTextOffset",
 		name = "NPC text height",
-		description = "Height of the timer above the NPC's head",
+		description = "Height of the timer above the NPC's head, when the timer position is Above",
 		section = displaySection,
-		position = 4
+		position = 5
 	)
 	default int npcTextOffset()
 	{
@@ -87,11 +99,24 @@ public interface NpcSpawnTimersConfig extends Config
 	@ConfigItem(
 		keyName = "objectTextOffset",
 		name = "Object text height",
-		description = "Height of the timer above the top of the object",
+		description = "Height of the timer above the top of the object, when the timer position is Above",
 		section = displaySection,
-		position = 5
+		position = 6
 	)
 	default int objectTextOffset()
+	{
+		return 0;
+	}
+
+	@Range(min = -500, max = 500)
+	@ConfigItem(
+		keyName = "graphicsTextOffset",
+		name = "Graphics text height",
+		description = "Height of the timer above the top of the graphic, when the timer position is Above",
+		section = displaySection,
+		position = 7
+	)
+	default int graphicsTextOffset()
 	{
 		return 0;
 	}
@@ -127,13 +152,25 @@ public interface NpcSpawnTimersConfig extends Config
 		return "";
 	}
 
+	@ConfigItem(
+		keyName = "group1Graphics",
+		name = "Graphics",
+		description = "Comma or newline separated graphics (spot animation) IDs",
+		section = group1Section,
+		position = 2
+	)
+	default String group1Graphics()
+	{
+		return "";
+	}
+
 	@Alpha
 	@ConfigItem(
 		keyName = "group1Color",
 		name = "Color",
 		description = "Color of the timers in this group",
 		section = group1Section,
-		position = 2
+		position = 3
 	)
 	default Color group1Color()
 	{
@@ -145,7 +182,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Mode",
 		description = "Count up from the spawn, or count down from a starting value",
 		section = group1Section,
-		position = 3
+		position = 4
 	)
 	default TimerMode group1Mode()
 	{
@@ -158,7 +195,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Countdown start",
 		description = "Value the countdown starts from, in the unit selected below",
 		section = group1Section,
-		position = 4
+		position = 5
 	)
 	default int group1Start()
 	{
@@ -170,7 +207,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Unit",
 		description = "Whether the timer is measured in game ticks or seconds",
 		section = group1Section,
-		position = 5
+		position = 6
 	)
 	default TimerUnit group1Unit()
 	{
@@ -209,13 +246,25 @@ public interface NpcSpawnTimersConfig extends Config
 		return "";
 	}
 
+	@ConfigItem(
+		keyName = "group2Graphics",
+		name = "Graphics",
+		description = "Comma or newline separated graphics (spot animation) IDs",
+		section = group2Section,
+		position = 2
+	)
+	default String group2Graphics()
+	{
+		return "";
+	}
+
 	@Alpha
 	@ConfigItem(
 		keyName = "group2Color",
 		name = "Color",
 		description = "Color of the timers in this group",
 		section = group2Section,
-		position = 2
+		position = 3
 	)
 	default Color group2Color()
 	{
@@ -227,7 +276,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Mode",
 		description = "Count up from the spawn, or count down from a starting value",
 		section = group2Section,
-		position = 3
+		position = 4
 	)
 	default TimerMode group2Mode()
 	{
@@ -240,7 +289,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Countdown start",
 		description = "Value the countdown starts from, in the unit selected below",
 		section = group2Section,
-		position = 4
+		position = 5
 	)
 	default int group2Start()
 	{
@@ -252,7 +301,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Unit",
 		description = "Whether the timer is measured in game ticks or seconds",
 		section = group2Section,
-		position = 5
+		position = 6
 	)
 	default TimerUnit group2Unit()
 	{
@@ -291,13 +340,25 @@ public interface NpcSpawnTimersConfig extends Config
 		return "";
 	}
 
+	@ConfigItem(
+		keyName = "group3Graphics",
+		name = "Graphics",
+		description = "Comma or newline separated graphics (spot animation) IDs",
+		section = group3Section,
+		position = 2
+	)
+	default String group3Graphics()
+	{
+		return "";
+	}
+
 	@Alpha
 	@ConfigItem(
 		keyName = "group3Color",
 		name = "Color",
 		description = "Color of the timers in this group",
 		section = group3Section,
-		position = 2
+		position = 3
 	)
 	default Color group3Color()
 	{
@@ -309,7 +370,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Mode",
 		description = "Count up from the spawn, or count down from a starting value",
 		section = group3Section,
-		position = 3
+		position = 4
 	)
 	default TimerMode group3Mode()
 	{
@@ -322,7 +383,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Countdown start",
 		description = "Value the countdown starts from, in the unit selected below",
 		section = group3Section,
-		position = 4
+		position = 5
 	)
 	default int group3Start()
 	{
@@ -334,7 +395,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Unit",
 		description = "Whether the timer is measured in game ticks or seconds",
 		section = group3Section,
-		position = 5
+		position = 6
 	)
 	default TimerUnit group3Unit()
 	{
@@ -373,13 +434,25 @@ public interface NpcSpawnTimersConfig extends Config
 		return "";
 	}
 
+	@ConfigItem(
+		keyName = "group4Graphics",
+		name = "Graphics",
+		description = "Comma or newline separated graphics (spot animation) IDs",
+		section = group4Section,
+		position = 2
+	)
+	default String group4Graphics()
+	{
+		return "";
+	}
+
 	@Alpha
 	@ConfigItem(
 		keyName = "group4Color",
 		name = "Color",
 		description = "Color of the timers in this group",
 		section = group4Section,
-		position = 2
+		position = 3
 	)
 	default Color group4Color()
 	{
@@ -391,7 +464,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Mode",
 		description = "Count up from the spawn, or count down from a starting value",
 		section = group4Section,
-		position = 3
+		position = 4
 	)
 	default TimerMode group4Mode()
 	{
@@ -404,7 +477,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Countdown start",
 		description = "Value the countdown starts from, in the unit selected below",
 		section = group4Section,
-		position = 4
+		position = 5
 	)
 	default int group4Start()
 	{
@@ -416,7 +489,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Unit",
 		description = "Whether the timer is measured in game ticks or seconds",
 		section = group4Section,
-		position = 5
+		position = 6
 	)
 	default TimerUnit group4Unit()
 	{
@@ -455,13 +528,25 @@ public interface NpcSpawnTimersConfig extends Config
 		return "";
 	}
 
+	@ConfigItem(
+		keyName = "group5Graphics",
+		name = "Graphics",
+		description = "Comma or newline separated graphics (spot animation) IDs",
+		section = group5Section,
+		position = 2
+	)
+	default String group5Graphics()
+	{
+		return "";
+	}
+
 	@Alpha
 	@ConfigItem(
 		keyName = "group5Color",
 		name = "Color",
 		description = "Color of the timers in this group",
 		section = group5Section,
-		position = 2
+		position = 3
 	)
 	default Color group5Color()
 	{
@@ -473,7 +558,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Mode",
 		description = "Count up from the spawn, or count down from a starting value",
 		section = group5Section,
-		position = 3
+		position = 4
 	)
 	default TimerMode group5Mode()
 	{
@@ -486,7 +571,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Countdown start",
 		description = "Value the countdown starts from, in the unit selected below",
 		section = group5Section,
-		position = 4
+		position = 5
 	)
 	default int group5Start()
 	{
@@ -498,7 +583,7 @@ public interface NpcSpawnTimersConfig extends Config
 		name = "Unit",
 		description = "Whether the timer is measured in game ticks or seconds",
 		section = group5Section,
-		position = 5
+		position = 6
 	)
 	default TimerUnit group5Unit()
 	{
